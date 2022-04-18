@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"">
+    <link rel="stylesheet" href="style.css">
+    <title>Master Peach線上靈籤</title>
+</head>
+<body>
+    <div id="app">
+        <router-link to="/">首頁</router-link>
+        <router-link to="/work">問事業</router-link>
+        <router-link to="/love">問感情</router-link>
+        <router-link to="/health">問健康</router-link>
+        <router-link to="/explain">籤詩釋解</router-link>
+        <router-view></router-view>
+    </div>
+<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.4.3/vue-router.js' integrity='sha512-3y+1622sE9JcYGIob4bKvJI6qMHpzrsloehokHVZBk1Lx7lr7H5p6IOqIkRQzB0Ids5l11W3n+vK50xArypH5g==' crossorigin='anonymous'></script>
+<script src="https://unpkg.com/vuex@3.0.1"></script>
+<script>
+
+    const index={
+        template:`<div>
+            <h1>Master Peach靈籤</h1>
+        </div>`
+    }
+
+    const work={
+        template:`<div>
+            <h1 >事業</h1>
+            <p>點擊擲筊</p>
+            <img id="pic" src="筊.jpg" @click.once="$store.commit('tossJudge')">
+            <p>{{this.$store.state.firstResult}}</p>
+            <img v-show="this.$store.state.tossResult1" src="陰杯.jpg">
+            <button v-show="this.$store.state.tossResult1" @click="$store.commit('reloadHandler')">重新擲筊</button>
+            <img v-show="this.$store.state.tossResult2" src="筊.jpg">
+            <button v-show="this.$store.state.tossResult2" @click="$router.replace({path:'/drawLots'});$router.go(0);">去抽籤</button>
+        </div>`,
+    }
+    const drawLots={
+        template:`<div>
+            <h1>抽籤頁面</h1>
+            <p>長按籤筒兩秒求籤</p>
+            <img id="drawLots" src="籤.jpg" @click.once="$store.commit('randomNum')">
+            <p>{{this.$store.state.randomNumResult}}</p>
+            <button v-show="this.$store.state.tossCheck" @click.once="$store.commit('secondTossHandler')">擲筊確認籤詩是否正確</button>
+            <p>{{this.$store.state.secondResult}}</p>
+            <img v-show="this.$store.state.secondToss1" src="陰杯.jpg">
+            <button v-show="this.$store.state.secondToss1" @click="$store.commit('reloadHandler')">重新抽籤</button>
+            <img v-show="this.$store.state.secondToss2" src="筊.jpg">
+            <button v-show="this.$store.state.secondToss2" @click="explainHandler">籤詩詳解</button>
+        </div>`,
+        methods:{
+            explainHandler(){
+                if(this.$store.state.randomNumResult==='大吉'){
+                    this.$router.push({path:'/explain/result1'})
+                }else if(this.$store.state.randomNumResult==='吉'){
+                    this.$router.push({path:'/explain/result2'})
+                }else if(this.$store.state.randomNumResult==='小吉'){
+                    this.$router.push({path:'/explain/result3'})
+                }else if(this.$store.state.randomNumResult==='大凶'){
+                    this.$router.push({path:'/explain/result4'})
+                }else if(this.$store.state.randomNumResult==='凶'){
+                    this.$router.push({path:'/explain/result5'})
+                }else if(this.$store.state.randomNumResult==='小凶'){
+                    this.$router.push({path:'/explain/result6'})
+                }
+            },
+        }
+    }
+
+    const love={
+        template:`<div>
+            <h1>感情</h1>
+            <p>點擊擲筊</p>
+            <img id="pic" src="筊.jpg" @click.once="$store.commit('tossJudge')">
+            <p>{{this.$store.state.firstResult}}</p>
+            <img v-show="this.$store.state.tossResult1" src="陰杯.jpg">
+            <button v-show="this.$store.state.tossResult1" @click="$store.commit('reloadHandler')">重新擲筊</button>
+            <img v-show="this.$store.state.tossResult2" src="筊.jpg">
+            <button v-show="this.$store.state.tossResult2" @click="$router.replace({path:'/drawLots'});$router.go(0);">去抽籤</button>
+        </div>`,
+    }
+
+    const health={
+        template:`<div>
+            <h1 >健康</h1>
+            <p>點擊擲筊</p>
+            <img id="pic" src="筊.jpg" @click.once="$store.commit('tossJudge')">
+            <p>{{this.$store.state.firstResult}}</p>
+            <img v-show="this.$store.state.tossResult1" src="陰杯.jpg">
+            <button v-show="this.$store.state.tossResult1" @click="$store.commit('reloadHandler')">重新擲筊</button>
+            <img v-show="this.$store.state.tossResult2" src="筊.jpg">
+            <button v-show="this.$store.state.tossResult2" @click="$router.replace({path:'/drawLots'});$router.go(0);">去抽籤</button>
+        </div>`,
+    }
+
+    const explain={
+        template:`<div>
+            <h1>靈籤解析</h1>
+            <router-link to="/explain/result1">大吉解析</router-link>
+            <router-link to="/explain/result2">吉解析</router-link>
+            <router-link to="/explain/result3">小吉解析</router-link>
+            <router-link to="/explain/result4">大凶解析</router-link>
+            <router-link to="/explain/result5">凶解析</router-link>
+            <router-link to="/explain/result6">小凶解析</router-link>
+            <router-view></router-view>
+         </div>`
+    }
+    const result1={
+        template:`<div>
+            <h2>大吉:就很吉利</h2>
+            <img src="大吉.png">
+        </div>`
+    }
+    const result2={
+        template:`<div>
+            <h2>吉:就普通吉</h2>
+            <img src="吉.jpg">
+        </div>`
+    }
+    const result3={
+        template:`<div>
+            <h2>小吉:就還行</h2>
+            <img src="小吉.jpg">
+        </div>`
+    }
+    const result4={
+        template:`<div>
+            <h2>大凶:就很凶</h2>
+            <img src="大凶.jpg">
+        </div>`
+    }
+    const result5={
+        template:`<div>
+            <h2>凶:就普通凶</h2>
+            <img src="凶.jpg">
+        </div>`
+    }
+    const result6={
+        template:`<div>
+            <h2>小凶:就一點點凶</h2>
+            <img src="小凶.jpg">
+        </div>`
+    }
+
+    const error={
+        template:`<div>
+            <h1>這一頁不存在!!!!</h1>
+        </div>`
+    }
+
+    const router=new VueRouter({
+        beforeRouteEnter(to,from,next){
+            next(()=>{
+                router.push({path:'/empty'})
+            })
+        },
+        routes:[
+            {
+                path:'/',
+                component:index
+            },
+            {
+                path:'/work',
+                component:work,
+                name:'work'
+            },
+            {
+                path:'/love',
+                component:love
+            },
+            {
+                path:'/health',
+                component:health
+            },
+            {
+                path:'/explain',
+                component:explain,
+                children:[
+                    {
+                        path:'result1',
+                        component:result1
+                    },
+                    {
+                        path:'result2',
+                        component:result2
+                    },
+                    {
+                        path:'result3',
+                        component:result3
+                    },
+                    {
+                        path:'result4',
+                        component:result4
+                    },
+                    {
+                        path:'result5',
+                        component:result5
+                    },
+                    {
+                        path:'result6',
+                        component:result6
+                    }
+                ]
+            },
+            {
+                path:'/drawLots',
+                component:drawLots,
+            },
+            {
+                path:'/404',
+                component:error,
+            },
+            {
+                path:'*',
+                redirect:'/404',
+            },
+        ]
+    })
+
+    const store=new Vuex.Store({
+        state:{
+            toss:['陰杯','聖杯','笑杯'],
+            moon:["小凶","凶","大凶","小吉","吉","大吉"],
+            //首次擲筊結果
+            firstResult:'',
+            tossResult1:'',
+            tossResult2:'',
+            //吉凶結果
+            randomNumResult:'',
+            //二次擲筊結果
+            secondResult:'',
+            secondToss1:'',
+            secondToss2:'',
+            tossCheck:false
+            
+        },
+        mutations:{
+            randomNum(state){
+                setTimeout(() => {
+                    let random=Math.floor(Math.random()*state.moon.length)
+                    state.randomNumResult=state.moon[random]
+                    if(!this.tossCheck){
+                        state.tossCheck=true
+                    }}, 500);
+            },
+            tossJudge(state){
+                setTimeout(() => {
+                    let randomToss=Math.floor(Math.random()*state.toss.length)
+                state.firstResult=state.toss[randomToss]
+                if(state.firstResult==='笑杯'||state.firstResult==='陰杯'){
+                    state.tossResult1=true
+                    state.tossResult2=false
+                }else if(state.firstResult==="聖杯"){
+                    state.tossResult1=false
+                    state.tossResult2=true
+                }}, 500);
+            },
+            secondTossHandler(state){
+                setTimeout(() => {
+                    let secRandomToss=Math.floor(Math.random()*state.toss.length)
+                    state.secondResult=state.toss[secRandomToss]
+                    if(state.secondResult==='笑杯'||state.secondResult==='陰杯'){
+                        state.secondToss1=true
+                    }else if(state.secondResult==="聖杯"){
+                        state.secondToss2=true
+                    }}, 500);
+            },
+            reloadHandler(){
+                window.location.reload()
+            }
+        }
+    })
+
+    let vm=new Vue({
+        el:'#app',
+        router,
+        store,
+    })
+</script>
+</body>
+</html> 

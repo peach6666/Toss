@@ -1,0 +1,23 @@
+/*#pic:active{
+    animation:toss 0.1s ease;   
+}
+@keyframes toss{
+    from{transform:rotateY(0deg);}
+    to{transform:rotateY(360deg);}
+}*/
+#pic:hover{
+    -webkit-transition:3s ease;
+    -webkit-transform: rotate(720deg) scale(0.7);
+    -webkit-border-radius: 50%;
+    cursor:pointer;
+}
+#drawLots:hover{
+    cursor:pointer;
+}
+#drawLots:active{
+    -webkit-animation:drawLots 2s ease;
+}
+@keyframes drawLots{
+    from{transform:rotateY(0deg);}
+    to{transform:rotateY(720deg);}
+}
